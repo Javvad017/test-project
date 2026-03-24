@@ -46,7 +46,7 @@ export default function UploadBook() {
       const slug = form.title.replace(/[^a-z0-9]/gi, "_").toLowerCase();
 
       // Upload PDF
-      const pdfPath = `books/${ts}_${slug}.pdf`;
+      const pdfPath = `books/pdfs/${ts}_${slug}.pdf`;
       const { url: pdfUrl, storagePath: pdfStoragePath } = await uploadFile(
         pdfFile, pdfPath, (pct) => setState((s) => ({ ...s, pdfPct: pct }))
       );
@@ -55,7 +55,7 @@ export default function UploadBook() {
       let coverUrl = "", coverStoragePath = "";
       if (coverFile) {
         setState((s) => ({ ...s, phase: "uploading-cover" }));
-        const coverPath = `covers/${ts}_${slug}`;
+        const coverPath = `books/covers/${ts}_${slug}`;
         const res = await uploadFile(coverFile, coverPath, (pct) => setState((s) => ({ ...s, coverPct: pct })));
         coverUrl = res.url;
         coverStoragePath = res.storagePath;
@@ -72,8 +72,9 @@ export default function UploadBook() {
       setState((s) => ({ ...s, phase: "done" }));
       setTimeout(() => router.push("/admin/manage-books"), 1800);
     } catch (err) {
-      console.error(err);
-      setState((s) => ({ ...s, phase: "error", error: "Upload failed. Check your Firebase config and try again." }));
+      console.error("[UploadBook] Error:", err);
+      const msg = err instanceof Error ? err.message : "Upload failed. Check your Firebase config and try again.";
+      setState((s) => ({ ...s, phase: "error", error: msg }));
     }
   };
 
@@ -184,9 +185,8 @@ export default function UploadBook() {
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Book Cover Image <span className="text-gray-600 font-normal">(optional)</span></label>
             <div className="flex items-start gap-4">
-              <label className={`flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer transition-all ${
-                coverFile ? "border-emerald-600/50 bg-emerald-900/10" : "border-gray-700 hover:border-gray-600 hover:bg-gray-800/50"
-              }`}>
+              <label className={`flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer transition-all ${coverFile ? "border-emerald-600/50 bg-emerald-900/10" : "border-gray-700 hover:border-gray-600 hover:bg-gray-800/50"
+                }`}>
                 {coverFile ? (
                   <>
                     <span className="text-3xl mb-2">🖼️</span>
@@ -226,9 +226,8 @@ export default function UploadBook() {
           {/* PDF file */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">PDF File <span className="text-red-400">*</span></label>
-            <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 cursor-pointer transition-all ${
-              pdfFile ? "border-emerald-600/50 bg-emerald-900/10" : "border-gray-700 hover:border-gray-600 hover:bg-gray-800/50"
-            }`}>
+            <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 cursor-pointer transition-all ${pdfFile ? "border-emerald-600/50 bg-emerald-900/10" : "border-gray-700 hover:border-gray-600 hover:bg-gray-800/50"
+              }`}>
               {pdfFile ? (
                 <>
                   <span className="text-4xl mb-2">📄</span>
@@ -245,15 +244,15 @@ export default function UploadBook() {
               <input type="file" accept=".pdf" onChange={(e) => setPdfFile(e.target.files?.[0] || null)} className="hidden" required />
             </label>
 
-            {/* PDF progress */}
-            {state.phase === "uploading-pdf" && (
+            {/* PDF progress — show when uploading PDF */}
+            {["uploading-pdf", "uploading-cover", "saving"].includes(state.phase) && pdfFile && (
               <div className="mt-3">
                 <div className="flex justify-between text-xs text-gray-400 mb-1.5">
-                  <span>Uploading PDF...</span>
+                  <span>PDF Upload {state.pdfPct === 100 ? "Complete ✓" : "Progress"}</span>
                   <span className="text-emerald-400 font-medium">{state.pdfPct}%</span>
                 </div>
                 <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full transition-all duration-300" style={{ width: `${state.pdfPct}%` }} />
+                  <div className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full transition-all duration-500" style={{ width: `${state.pdfPct}%` }} />
                 </div>
               </div>
             )}

@@ -109,11 +109,11 @@ export const books: Book[] = [
     id: "9",
     title: "Lives of the Scholars",
     author: "Imam al-Dhahabi",
-    category: "Scholars",
+    category: "Scholar Biography",
     cover: "/covers/scholars.jpg",
     pdfUrl: "/books/scholars.pdf",
     description:
-      "Biographies of the great Islamic scholars throughout history.",
+      "Biographies of the great Islamic scholars and saints throughout history.",
     pages: 750,
     language: "English",
     year: 1350,
@@ -135,7 +135,7 @@ export const books: Book[] = [
     id: "11",
     title: "Ihya Ulum al-Din",
     author: "Imam Abu Hamid al-Ghazali",
-    category: "Scholars",
+    category: "Scholar Biography",
     cover: "/covers/ihya.jpg",
     pdfUrl: "/books/ihya.pdf",
     description:
@@ -163,9 +163,7 @@ export const categories = [
   "All",
   "Quran",
   "Hadith",
-  "Fiqh",
-  "Islamic History",
-  "Scholars",
+  "Scholar Biography",
 ] as const;
 
 export const featuredBooks = books.slice(0, 4);

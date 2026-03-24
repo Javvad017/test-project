@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getBooks, deleteBook } from "@/lib/books";
+import { subscribeToBooks, deleteBook } from "@/lib/books";
 import { FirestoreBook } from "@/types";
 
 const categoryColors: Record<string, string> = {
@@ -19,13 +19,13 @@ export default function ManageBooks() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
-  const load = async () => {
-    const data = await getBooks();
-    setBooks(data);
-    setLoading(false);
-  };
-
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    const unsubscribe = subscribeToBooks((data) => {
+      setBooks(data);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleDelete = async (book: FirestoreBook) => {
     if (!confirm(`Delete "${book.title}"? This cannot be undone.`)) return;

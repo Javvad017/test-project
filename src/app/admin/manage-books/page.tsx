@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getBooks, deleteBook } from "@/lib/books";
+import { subscribeToBooks, deleteBook } from "@/lib/books";
 import { FirestoreBook } from "@/types";
 
 const categoryStyle: Record<string, string> = {
-  Quran:            "text-emerald-400 border-emerald-700/50 bg-emerald-900/30",
-  Hadith:           "text-amber-400 border-amber-700/50 bg-amber-900/30",
-  Fiqh:             "text-blue-400 border-blue-700/50 bg-blue-900/30",
-  "Islamic History":"text-purple-400 border-purple-700/50 bg-purple-900/30",
-  Scholars:         "text-rose-400 border-rose-700/50 bg-rose-900/30",
+  Quran: "text-emerald-400 border-emerald-700/50 bg-emerald-900/30",
+  Hadith: "text-amber-400 border-amber-700/50 bg-amber-900/30",
+  Fiqh: "text-blue-400 border-blue-700/50 bg-blue-900/30",
+  "Islamic History": "text-purple-400 border-purple-700/50 bg-purple-900/30",
+  Scholars: "text-rose-400 border-rose-700/50 bg-rose-900/30",
 };
 
 const categoryIcons: Record<string, string> = {
@@ -25,7 +25,8 @@ export default function ManageBooks() {
   const [filterCat, setFilterCat] = useState("All");
 
   useEffect(() => {
-    getBooks().then((d) => { setBooks(d); setLoading(false); });
+    const unsubscribe = subscribeToBooks((d) => { setBooks(d); setLoading(false); });
+    return () => unsubscribe();
   }, []);
 
   const handleDelete = async (book: FirestoreBook) => {
@@ -75,11 +76,10 @@ export default function ManageBooks() {
         <div className="flex gap-2 flex-wrap">
           {categories.map((cat) => (
             <button key={cat} onClick={() => setFilterCat(cat)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
-                filterCat === cat
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${filterCat === cat
                   ? "bg-emerald-600 text-white shadow-md"
                   : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white border border-gray-700"
-              }`}>
+                }`}>
               {cat !== "All" && categoryIcons[cat] ? `${categoryIcons[cat]} ` : ""}{cat}
             </button>
           ))}

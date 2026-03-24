@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getBooks } from "@/lib/books";
+import { subscribeToBooks } from "@/lib/books";
 import { FirestoreBook, Category } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 
 const categoryMeta: Record<string, { icon: string; color: string }> = {
-  Quran:            { icon: "📖", color: "text-emerald-400" },
-  Hadith:           { icon: "📜", color: "text-amber-400" },
-  Fiqh:             { icon: "⚖️", color: "text-blue-400" },
-  "Islamic History":{ icon: "🕌", color: "text-purple-400" },
-  Scholars:         { icon: "🎓", color: "text-rose-400" },
+  Quran: { icon: "📖", color: "text-emerald-400" },
+  Hadith: { icon: "📜", color: "text-amber-400" },
+  Fiqh: { icon: "⚖️", color: "text-blue-400" },
+  "Islamic History": { icon: "🕌", color: "text-purple-400" },
+  Scholars: { icon: "🎓", color: "text-rose-400" },
 };
 
 export default function Dashboard() {
@@ -20,7 +20,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getBooks().then((d) => { setBooks(d); setLoading(false); });
+    const unsubscribe = subscribeToBooks((d) => { setBooks(d); setLoading(false); });
+    return () => unsubscribe();
   }, []);
 
   const categoryCounts = books.reduce<Record<string, number>>((acc, b) => {
@@ -29,10 +30,10 @@ export default function Dashboard() {
   }, {});
 
   const topStats = [
-    { label: "Total Books",  value: books.length,                          icon: "📚", gradient: "from-emerald-600/20 to-emerald-700/10", border: "border-emerald-700/30", text: "text-emerald-400" },
-    { label: "Categories",   value: Object.keys(categoryCounts).length,    icon: "🗂️", gradient: "from-amber-600/20 to-amber-700/10",   border: "border-amber-700/30",   text: "text-amber-400" },
-    { label: "Quran",        value: categoryCounts["Quran"] || 0,          icon: "📖", gradient: "from-blue-600/20 to-blue-700/10",     border: "border-blue-700/30",    text: "text-blue-400" },
-    { label: "Hadith",       value: categoryCounts["Hadith"] || 0,         icon: "📜", gradient: "from-purple-600/20 to-purple-700/10", border: "border-purple-700/30",  text: "text-purple-400" },
+    { label: "Total Books", value: books.length, icon: "📚", gradient: "from-emerald-600/20 to-emerald-700/10", border: "border-emerald-700/30", text: "text-emerald-400" },
+    { label: "Categories", value: Object.keys(categoryCounts).length, icon: "🗂️", gradient: "from-amber-600/20 to-amber-700/10", border: "border-amber-700/30", text: "text-amber-400" },
+    { label: "Quran", value: categoryCounts["Quran"] || 0, icon: "📖", gradient: "from-blue-600/20 to-blue-700/10", border: "border-blue-700/30", text: "text-blue-400" },
+    { label: "Hadith", value: categoryCounts["Hadith"] || 0, icon: "📜", gradient: "from-purple-600/20 to-purple-700/10", border: "border-purple-700/30", text: "text-purple-400" },
   ];
 
   const Skeleton = ({ className = "" }: { className?: string }) => (
@@ -122,13 +123,12 @@ export default function Dashboard() {
                         <span className={`text-xs font-bold ${meta.color}`}>{count}</span>
                       </div>
                       <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full bg-gradient-to-r transition-all duration-500 ${
-                          cat === "Quran" ? "from-emerald-600 to-emerald-400" :
-                          cat === "Hadith" ? "from-amber-600 to-amber-400" :
-                          cat === "Fiqh" ? "from-blue-600 to-blue-400" :
-                          cat === "Islamic History" ? "from-purple-600 to-purple-400" :
-                          "from-rose-600 to-rose-400"
-                        }`} style={{ width: `${pct}%` }} />
+                        <div className={`h-full rounded-full bg-gradient-to-r transition-all duration-500 ${cat === "Quran" ? "from-emerald-600 to-emerald-400" :
+                            cat === "Hadith" ? "from-amber-600 to-amber-400" :
+                              cat === "Fiqh" ? "from-blue-600 to-blue-400" :
+                                cat === "Islamic History" ? "from-purple-600 to-purple-400" :
+                                  "from-rose-600 to-rose-400"
+                          }`} style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   </div>
@@ -178,13 +178,12 @@ export default function Dashboard() {
                     <p className="text-white text-sm font-medium line-clamp-1 group-hover:text-emerald-400 transition-colors">{book.title}</p>
                     <p className="text-gray-500 text-xs line-clamp-1">{book.author}</p>
                   </div>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full border flex-shrink-0 ${
-                    book.category === "Quran" ? "text-emerald-400 border-emerald-700/50 bg-emerald-900/30" :
-                    book.category === "Hadith" ? "text-amber-400 border-amber-700/50 bg-amber-900/30" :
-                    book.category === "Fiqh" ? "text-blue-400 border-blue-700/50 bg-blue-900/30" :
-                    book.category === "Islamic History" ? "text-purple-400 border-purple-700/50 bg-purple-900/30" :
-                    "text-rose-400 border-rose-700/50 bg-rose-900/30"
-                  }`}>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full border flex-shrink-0 ${book.category === "Quran" ? "text-emerald-400 border-emerald-700/50 bg-emerald-900/30" :
+                      book.category === "Hadith" ? "text-amber-400 border-amber-700/50 bg-amber-900/30" :
+                        book.category === "Fiqh" ? "text-blue-400 border-blue-700/50 bg-blue-900/30" :
+                          book.category === "Islamic History" ? "text-purple-400 border-purple-700/50 bg-purple-900/30" :
+                            "text-rose-400 border-rose-700/50 bg-rose-900/30"
+                    }`}>
                     {book.category}
                   </span>
                   <Link href={`/admin/manage-books/edit?id=${book.id}`}

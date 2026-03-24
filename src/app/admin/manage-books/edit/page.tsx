@@ -48,12 +48,12 @@ function EditContent() {
         ...(form.language ? { language: form.language } : {}),
       };
       if (newCover) {
-        const path = `covers/${Date.now()}_${form.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}`;
+        const path = `books/covers/${Date.now()}_${form.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}`;
         const { url, storagePath } = await uploadFile(newCover, path);
         updates.coverUrl = url; updates.coverStoragePath = storagePath;
       }
       if (newPdf) {
-        const path = `books/${Date.now()}_${form.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.pdf`;
+        const path = `books/pdfs/${Date.now()}_${form.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.pdf`;
         const { url, storagePath } = await uploadFile(newPdf, path);
         updates.pdfUrl = url; updates.pdfStoragePath = storagePath;
       }

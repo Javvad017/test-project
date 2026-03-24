@@ -16,7 +16,8 @@ export type Category =
   | "Hadith"
   | "Fiqh"
   | "Islamic History"
-  | "Scholars";
+  | "Scholars"
+  | "Scholar Biography";
 
 export interface FirestoreBook {
   id: string;
